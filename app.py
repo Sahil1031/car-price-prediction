@@ -1,10 +1,13 @@
 import streamlit as st
-import joblib
+import pickle
+import gzip
 import numpy as np
 import pandas as pd
+import joblib
 
 
-model = joblib.load('car_price_model.pkl')
+with gzip.open("car_price_model_compressed.pkl.gz", "rb") as f:
+    model = joblib.load(f)
 
 st.title("Car Price Prediction App")
 
@@ -39,15 +42,11 @@ def user_input():
     owner_Fourth_Above = 1 if owner == 'Fourth & Above Owner' else 0
     owner_Test_Drive = 1 if owner == 'Test Drive Car' else 0
 
-    # Construct final feature array
-    features = np.array([[
-        year, km_driven, mileage, engine, max_power, seats,
-        fuel_Diesel, fuel_LPG, fuel_Petrol,
-        seller_Individual, seller_Trustmark,
-        transmission_Manual,
-        owner_Fourth_Above, owner_Second, owner_Test_Drive, owner_Third
-    ]])
-
+    features = np.array([[year, km_driven, mileage, engine, max_power, seats,
+                          fuel_Diesel, fuel_LPG, fuel_Petrol,
+                          seller_Individual, seller_Trustmark,
+                          transmission_Manual,
+                          owner_Fourth_Above, owner_Second, owner_Test_Drive, owner_Third]])
     return features
 
 # Get user input
@@ -57,3 +56,4 @@ input_data = user_input()
 if st.button('Predict Car Price'):
     prediction = model.predict(input_data)[0]
     st.success(f"Estimated Car Price: ₹{round(prediction, 2):,}")
+
